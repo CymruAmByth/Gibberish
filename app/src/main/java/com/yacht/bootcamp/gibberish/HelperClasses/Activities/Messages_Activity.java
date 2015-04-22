@@ -2,23 +2,32 @@ package com.yacht.bootcamp.gibberish.HelperClasses.Activities;
 
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.yacht.bootcamp.gibberish.HelperClasses.Adapter.ConversationAdapter;
 import com.yacht.bootcamp.gibberish.HelperClasses.Adapter.MessageAdapter;
 import com.yacht.bootcamp.gibberish.HelperClasses.Message;
 import com.yacht.bootcamp.gibberish.HelperClasses.MessageDAO.MessageDataSource;
 import com.yacht.bootcamp.gibberish.HelperClasses.MessageDAO.RemoteMessageFetchTask;
+import com.yacht.bootcamp.gibberish.HelperClasses.MessageDAO.RemoteMessagePushTask;
 import com.yacht.bootcamp.gibberish.R;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
 
-public class Messages extends ActionBarActivity {
+public class Messages_Activity extends ActionBarActivity {
 
     private String local, remote;
+    private ListView lv;
+    private MessageAdapter adapter;
+    private ArrayList<Message> values;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,11 +44,11 @@ public class Messages extends ActionBarActivity {
         RemoteMessageFetchTask rmft = new RemoteMessageFetchTask(this);
         rmft.execute(local);
 
-        final ListView lv = (ListView) findViewById(R.id.messageListView);
+        lv = (ListView) findViewById(R.id.messageListView);
 
 
         MessageDataSource mds = new MessageDataSource(this);
-        ArrayList<Message> values = new ArrayList<>();
+        values = new ArrayList<>();
         try {
             mds.open();
             values = mds.getAllMessagesBetweenLocalAndRemote(local, remote);
@@ -49,7 +58,7 @@ public class Messages extends ActionBarActivity {
             mds.close();
         }
 
-        final MessageAdapter adapter = new MessageAdapter(this, values);
+        adapter = new MessageAdapter(this, values);
         lv.setAdapter(adapter);
     }
 
@@ -74,5 +83,20 @@ public class Messages extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    public void btnSendClicked(View view){
+        EditText etMessage = (EditText)findViewById(R.id.etMessage);
+        String message = etMessage.getText().toString();
+        if(!message.equals("")){
+            etMessage.setText("");
+            Message m = new Message(0, false, local, remote, message, System.currentTimeMillis(),true);
+            MessageDataSource mds = new MessageDataSource(this);
+            RemoteMessagePushTask rmpt = new RemoteMessagePushTask(this);
+            rmpt.execute(m);
+            values.add(0, m);
+            adapter.notifyDataSetChanged();
+        }
+
     }
 }

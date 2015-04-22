@@ -9,6 +9,27 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".Conversations">
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <EditText
+            android:id="@+id/etContact"
+            android:layout_width="fill_parent"
+            android:layout_weight="1"
+            android:layout_height="match_parent"
+            android:hint="@string/etContact"
+            android:gravity="right"
+            />
+        <Button
+            android:id="@+id/btnContact"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:onClick="btnContactClicked"
+            android:text="@string/btnContact"/>
+
+    </LinearLayout>
     <ListView
         android:id="@+id/conversationListView"
         android:layout_width="match_parent"

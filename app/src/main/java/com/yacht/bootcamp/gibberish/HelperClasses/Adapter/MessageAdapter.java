@@ -41,7 +41,7 @@ public class MessageAdapter extends ArrayAdapter<Message>{
             v = inflater.inflate(R.layout.conversation_list_item, null);
             ViewHolder holder = new ViewHolder();
             holder.tvDate = (TextView)v.findViewById(R.id.tvDate);
-            holder.tvTile = (TextView)v.findViewById(R.id.tvTile);
+            holder.tvTile = (TextView)v.findViewById(R.id.tvTileLeft);
             holder.tvMessage = (TextView)v.findViewById(R.id.tvMessage);
             v.setTag(holder);
         }

@@ -9,6 +9,8 @@ import com.yacht.bootcamp.gibberish.HelperClasses.Message;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 
 /**
  * Created by Joey on 4/10/2015.
@@ -72,6 +74,7 @@ public class MessageDataSource {
             messages.add(cursorToMessage(cursor));
             cursor.moveToNext();
         }
+        Collections.reverse(messages);
         return messages;
     }
 
