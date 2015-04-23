@@ -64,6 +64,11 @@ public class MessageDataSource {
         db.delete(MySQLiteHelper.TABLE_MESSAGES, MySQLiteHelper.MESSAGES_COLUMN_ID + " = " + id, null);
     }
 
+    public void deleteMessagesForUser(String local, String remote){
+        String whereClause = MySQLiteHelper.MESSAGES_COLUMN_LOCAL + " = ? and " + MySQLiteHelper.MESSAGES_COLUMN_REMOTE + " = ?";
+        db.delete(MySQLiteHelper.TABLE_MESSAGES, whereClause, new String[]{local, remote});
+    }
+
     public void markMessageAsRead(Message message){
         long id = message.getId();
         ContentValues values = new ContentValues();
@@ -74,7 +79,7 @@ public class MessageDataSource {
 
     public ArrayList<Message> getAllMessagesBetweenLocalAndRemote(String local, String remote){
         ArrayList<Message> messages = new ArrayList<>();
-        String whereClause = "local = ? and remote = ?";
+        String whereClause = MySQLiteHelper.MESSAGES_COLUMN_LOCAL + " = ? and " + MySQLiteHelper.MESSAGES_COLUMN_REMOTE + " = ?";
         Cursor cursor = db.query(MySQLiteHelper.TABLE_MESSAGES,
                 allColumns, whereClause, new String[] {local, remote}, null, null, MySQLiteHelper.MESSAGES_COLUMN_TIMESTAMP);
         cursor.moveToFirst();

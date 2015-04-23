@@ -2,11 +2,14 @@ package com.yacht.bootcamp.gibberish.HelperClasses.Activities;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -15,6 +18,7 @@ import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import com.yacht.bootcamp.gibberish.HelperClasses.Adapter.ConversationAdapter;
 import com.yacht.bootcamp.gibberish.HelperClasses.Message;
@@ -36,6 +40,7 @@ public class Conversations_Activity extends ActionBarActivity {
     private Handler timerHandler;
     private Runnable timerRunnable;
     private SharedPreferences prefs;
+    private MessageDataSource mds;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,6 +70,13 @@ public class Conversations_Activity extends ActionBarActivity {
                 goToMessages(values.get(position).getRemote());
             }
         });
+        lv.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
+            @Override
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+                conversationLongClicked(values.get(position));
+                return true;
+            }
+        });
         values = upDateMessages();
         adapter = new ConversationAdapter(this, values);
         lv.setAdapter(adapter);
@@ -75,7 +87,8 @@ public class Conversations_Activity extends ActionBarActivity {
             @Override
             public void run() {
                 adapter.clear();
-                adapter.addAll(upDateMessages());
+                values = upDateMessages();
+                adapter.addAll(values);
                 adapter.notifyDataSetChanged();
                 timerHandler.postDelayed(this, updateInterval);
             }
@@ -87,7 +100,7 @@ public class Conversations_Activity extends ActionBarActivity {
         ArrayList<Message> result = null;
         RemoteMessageFetchTask rmft = new RemoteMessageFetchTask(this);
         rmft.execute(local);
-        MessageDataSource mds = new MessageDataSource(this);
+        mds = new MessageDataSource(this);
         try {
             mds.open();
             result = mds.getAllConversationsForUser(local);
@@ -97,6 +110,40 @@ public class Conversations_Activity extends ActionBarActivity {
             mds.close();
         }
         return result;
+    }
+
+    private void conversationLongClicked(final Message m){
+        TextView tvAlert = new TextView(this);
+        tvAlert.setMovementMethod(LinkMovementMethod.getInstance());
+        tvAlert.setPadding(10,10,10,10);
+        tvAlert.setText("Are you sure you want to delete this conversation?");
+        AlertDialog.Builder  builder = new AlertDialog.Builder(this);
+        builder.setView(tvAlert)
+                .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        dialog.cancel();
+                    }
+                })
+                .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        try {
+                            mds.open();
+                            mds.deleteMessagesForUser(local, m.getRemote());
+                            mds.close();
+                            values.remove(m);
+                            adapter.notifyDataSetChanged();
+                        } catch (SQLException e) {
+                            mds.close();
+                            Log.d("Gib", e.getMessage());
+                        }
+                        dialog.cancel();
+                    }
+                });
+        AlertDialog dialog = builder.create();
+        dialog.show();
+
     }
 
     @Override
