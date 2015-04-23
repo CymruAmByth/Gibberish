@@ -11,4 +11,9 @@
     <string name="title_activity_login_">Login</string>
     <string name="tfLoginName">Login name</string>
     <string name="btnLogin">Login</string>
+    <string name="logOut">Log out</string>
+    <string name="title_activity_compose">Compose Gibberish</string>
+    <string name="recipient">To:</string>
+    <string name="msgText">Message text</string>
+    <string name="miComposeMessage">Compose Gibberish</string>
 </resources>

@@ -28,6 +28,10 @@
             android:name=".HelperClasses.Activities.Login_Activity"
             android:label="@string/title_activity_login_" >
         </activity>
+        <activity
+            android:name=".HelperClasses.Activities.ComposeActivity"
+            android:label="@string/title_activity_compose" >
+        </activity>
     </application>
 
 </manifest>

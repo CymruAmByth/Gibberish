@@ -18,6 +18,7 @@ import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import com.yacht.bootcamp.gibberish.HelperClasses.Adapter.ConversationAdapter;
@@ -60,6 +61,7 @@ public class Conversations_Activity extends ActionBarActivity {
         //settings
         updateInterval = prefs.getInt("activeUpdateInterval", 5000);
         local = prefs.getString("userName", "Cymru");
+        this.getSupportActionBar().setTitle("Gibberish by "+local);
 
         //list
         values = new ArrayList<>();
@@ -180,12 +182,20 @@ public class Conversations_Activity extends ActionBarActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
+        switch(id){
+            case R.id.action_settings:
+                return true;
+            case R.id.miLogout:
+                Intent intent = new Intent(this, Login_Activity.class);
+                startActivity(intent);
+                return true;
+            case R.id.miComposeNew:
+                Intent it = new Intent(this, ComposeActivity.class);
+                startActivity(it);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
         }
-
-        return super.onOptionsItemSelected(item);
     }
 
 }
