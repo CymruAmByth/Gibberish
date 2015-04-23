@@ -1,6 +1,9 @@
 package com.yacht.bootcamp.gibberish.HelperClasses.Activities;
 
+import android.app.ActionBar;
+import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -8,6 +11,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -31,12 +35,17 @@ public class Conversations_Activity extends ActionBarActivity {
     private int updateInterval;
     private Handler timerHandler;
     private Runnable timerRunnable;
+    private SharedPreferences prefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversations);
-
+        prefs = this.getSharedPreferences("Settings", MODE_PRIVATE);
+        if(!prefs.contains("userName")){
+            Intent intent = new Intent(this, Login_Activity.class);
+            startActivity(intent);
+        }
     }
 
     @Override
@@ -44,8 +53,8 @@ public class Conversations_Activity extends ActionBarActivity {
         super.onStart();
 
         //settings
-        updateInterval = 5000;
-        local = "Cymru";
+        updateInterval = prefs.getInt("activeUpdateInterval", 5000);
+        local = prefs.getString("userName", "Cymru");
 
         //list
         values = new ArrayList<>();

@@ -8,4 +8,7 @@
     <string name="btnSend">Send</string>
     <string name="etContact">Name of contact</string>
     <string name="btnContact">Contact!</string>
+    <string name="title_activity_login_">Login</string>
+    <string name="tfLoginName">Login name</string>
+    <string name="btnLogin">Login</string>
 </resources>

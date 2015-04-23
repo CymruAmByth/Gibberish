@@ -1,5 +1,6 @@
 package com.yacht.bootcamp.gibberish.HelperClasses.Activities;
 
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -31,15 +32,16 @@ public class Messages_Activity extends ActionBarActivity {
     private ArrayList<Message> values;
     private Handler timerHandler;
     private Runnable timerRunnable;
+    private SharedPreferences prefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_messages);
+        prefs = getSharedPreferences("Settings", MODE_PRIVATE);
+        updateInterval = prefs.getInt("activeUpdateInterval", 5000);
+        local = prefs.getString("userName", "Cymru");
 
-
-        local = "Cymru";
-        updateInterval = 5000;
         Bundle extras = this.getIntent().getExtras();
         if(extras!=null){
             remote = extras.getString("remote");

@@ -12,7 +12,7 @@
         <activity
             android:name=".HelperClasses.Activities.Conversations_Activity"
             android:label="@string/app_name"
-            android:windowSoftInputMode="stateHidden">
+            android:windowSoftInputMode="stateHidden" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -22,7 +22,11 @@
         <activity
             android:name=".HelperClasses.Activities.Messages_Activity"
             android:label="@string/title_activity_messages"
-            android:windowSoftInputMode="stateHidden">
+            android:windowSoftInputMode="stateHidden" >
+        </activity>
+        <activity
+            android:name=".HelperClasses.Activities.Login_Activity"
+            android:label="@string/title_activity_login_" >
         </activity>
     </application>
 
