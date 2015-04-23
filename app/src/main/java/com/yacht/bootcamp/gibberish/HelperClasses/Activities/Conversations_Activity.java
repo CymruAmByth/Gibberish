@@ -1,6 +1,7 @@
 package com.yacht.bootcamp.gibberish.HelperClasses.Activities;
 
 import android.content.Intent;
+import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,51 +26,87 @@ import java.util.ArrayList;
 public class Conversations_Activity extends ActionBarActivity {
 
     private ArrayList<Message> values;
+    private ConversationAdapter adapter;
     private String local;
+    private int updateInterval;
+    private Handler timerHandler;
+    private Runnable timerRunnable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversations);
-        local = "Cymru";
+
     }
 
     @Override
     protected void onStart() {
         super.onStart();
-        RemoteMessageFetchTask rmft = new RemoteMessageFetchTask(this);
-        rmft.execute(local);
 
-        ListView lv = (ListView) findViewById(R.id.conversationListView);
+        //settings
+        updateInterval = 5000;
+        local = "Cymru";
 
-
-        MessageDataSource mds = new MessageDataSource(this);
+        //list
         values = new ArrayList<>();
-        try {
-            mds.open();
-            values = mds.getAllConversationsForUser(local);
-            mds.close();
-        } catch (SQLException e) {
-            Log.d("Gib", e.getMessage());
-            mds.close();
-        }
-
-
+        ListView lv = (ListView) findViewById(R.id.conversationListView);
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 goToMessages(values.get(position).getRemote());
             }
         });
-
-        final ConversationAdapter adapter = new ConversationAdapter(this, values);
+        values = upDateMessages();
+        adapter = new ConversationAdapter(this, values);
         lv.setAdapter(adapter);
+
+        //timer
+        timerHandler = new Handler();
+        timerRunnable = new Runnable() {
+            @Override
+            public void run() {
+                adapter.clear();
+                adapter.addAll(upDateMessages());
+                adapter.notifyDataSetChanged();
+                timerHandler.postDelayed(this, updateInterval);
+            }
+        };
+        timerHandler.postDelayed(timerRunnable, updateInterval);
+    }
+
+    private ArrayList<Message> upDateMessages(){
+        ArrayList<Message> result = null;
+        RemoteMessageFetchTask rmft = new RemoteMessageFetchTask(this);
+        rmft.execute(local);
+        MessageDataSource mds = new MessageDataSource(this);
+        try {
+            mds.open();
+            result = mds.getAllConversationsForUser(local);
+            mds.close();
+        } catch (SQLException e) {
+            Log.d("Gib", e.getMessage());
+            mds.close();
+        }
+        return result;
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        timerHandler.removeCallbacks(timerRunnable);
     }
 
     private void goToMessages(String remote){
         Intent intent = new Intent(this, Messages_Activity.class);
         intent.putExtra("remote", remote);
         startActivity(intent);
+    }
+
+    public void btnContactClicked(View view){
+        EditText etContact = (EditText)findViewById(R.id.etContact);
+        String remote = etContact.getText().toString();
+        etContact.setText("");
+        goToMessages(remote);
     }
 
 
@@ -93,13 +130,6 @@ public class Conversations_Activity extends ActionBarActivity {
         }
 
         return super.onOptionsItemSelected(item);
-    }
-
-    public void btnContactClicked(View view){
-        EditText etContact = (EditText)findViewById(R.id.etContact);
-        String remote = etContact.getText().toString();
-        etContact.setText("");
-        goToMessages(remote);
     }
 
 }

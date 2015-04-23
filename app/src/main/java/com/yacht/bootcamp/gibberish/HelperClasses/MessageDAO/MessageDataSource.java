@@ -64,6 +64,14 @@ public class MessageDataSource {
         db.delete(MySQLiteHelper.TABLE_MESSAGES, MySQLiteHelper.MESSAGES_COLUMN_ID + " = " + id, null);
     }
 
+    public void markMessageAsRead(Message message){
+        long id = message.getId();
+        ContentValues values = new ContentValues();
+        values.put(MySQLiteHelper.MESSAGES_COLUMN_READ, true);
+        db.update(MySQLiteHelper.TABLE_MESSAGES, values,MySQLiteHelper.MESSAGES_COLUMN_ID + " = " + id, null);
+    }
+
+
     public ArrayList<Message> getAllMessagesBetweenLocalAndRemote(String local, String remote){
         ArrayList<Message> messages = new ArrayList<>();
         String whereClause = "local = ? and remote = ?";
@@ -96,6 +104,7 @@ public class MessageDataSource {
             messages.add(cursorToMessage(cursor));
             cursor.moveToNext();
         }
+        Collections.reverse(messages);
         return messages;
 
     }

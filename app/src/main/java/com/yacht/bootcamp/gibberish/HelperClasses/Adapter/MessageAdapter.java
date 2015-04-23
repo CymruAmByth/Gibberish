@@ -1,6 +1,8 @@
 package com.yacht.bootcamp.gibberish.HelperClasses.Adapter;
 
 import android.content.Context;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,8 +10,10 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.yacht.bootcamp.gibberish.HelperClasses.Message;
+import com.yacht.bootcamp.gibberish.HelperClasses.MessageDAO.MessageDataSource;
 import com.yacht.bootcamp.gibberish.R;
 
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -21,7 +25,8 @@ public class MessageAdapter extends ArrayAdapter<Message>{
     private final List<Message> values;
 
     private class ViewHolder {
-        public TextView tvTile;
+        public TextView tvTileLeft;
+        public TextView tvTileRight;
         public TextView tvDate;
         public TextView tvMessage;
     }
@@ -41,20 +46,44 @@ public class MessageAdapter extends ArrayAdapter<Message>{
             v = inflater.inflate(R.layout.conversation_list_item, null);
             ViewHolder holder = new ViewHolder();
             holder.tvDate = (TextView)v.findViewById(R.id.tvDate);
-            holder.tvTile = (TextView)v.findViewById(R.id.tvTileLeft);
+            holder.tvTileLeft = (TextView)v.findViewById(R.id.tvTileLeft);
+            holder.tvTileRight = (TextView)v.findViewById(R.id.tvTileRight);
             holder.tvMessage = (TextView)v.findViewById(R.id.tvMessage);
             v.setTag(holder);
         }
         Message entry = values.get(position);
         if(entry != null){
-            String sender;
-            if(entry.isIncoming())
-                sender = entry.getRemote();
-            else
-                sender = entry.getLocal();
             ViewHolder holder = (ViewHolder)v.getTag();
+            if(entry.isIncoming()) {
+                holder.tvTileRight.setVisibility(View.GONE);
+                holder.tvTileLeft.setVisibility(View.VISIBLE);
+                holder.tvTileLeft.setText(entry.getRemote().substring(0, 2).toLowerCase());
+                holder.tvMessage.setGravity(Gravity.LEFT);
+                holder.tvDate.setGravity(Gravity.LEFT);
+                if(entry.isRead()){
+                    holder.tvTileLeft.setBackgroundColor(context.getResources().getColor(R.color.blue));
+                }
+                else{
+                    holder.tvTileLeft.setBackgroundColor(context.getResources().getColor(R.color.red));
+                    MessageDataSource mds = new MessageDataSource(context);
+                    try {
+                        mds.open();
+                        mds.markMessageAsRead(entry);
+                        mds.close();
+                    } catch (SQLException e) {
+                        mds.close();
+                        Log.d("Gib", e.getMessage());
+                    }
+                }
+            }
+            else{
+                holder.tvTileRight.setVisibility(View.VISIBLE);
+                holder.tvTileLeft.setVisibility(View.GONE);
+                holder.tvTileRight.setText(entry.getLocal().substring(0, 2).toLowerCase());
+                holder.tvMessage.setGravity(Gravity.RIGHT);
+                holder.tvDate.setGravity(Gravity.RIGHT);
+            }
             holder.tvDate.setText(entry.getTimestampAsString());
-            holder.tvTile.setText(sender.substring(0, 2).toLowerCase());
             holder.tvMessage.setText(entry.getMessage());
         }
         return v;

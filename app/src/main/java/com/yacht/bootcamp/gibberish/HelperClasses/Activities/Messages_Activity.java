@@ -1,5 +1,6 @@
 package com.yacht.bootcamp.gibberish.HelperClasses.Activities;
 
+import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -25,43 +26,84 @@ import java.util.List;
 public class Messages_Activity extends ActionBarActivity {
 
     private String local, remote;
-    private ListView lv;
+    private int updateInterval;
     private MessageAdapter adapter;
     private ArrayList<Message> values;
+    private Handler timerHandler;
+    private Runnable timerRunnable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_messages);
 
+
+        local = "Cymru";
+        updateInterval = 5000;
         Bundle extras = this.getIntent().getExtras();
         if(extras!=null){
             remote = extras.getString("remote");
         }
 
-        local = "Cymru";
-
-        RemoteMessageFetchTask rmft = new RemoteMessageFetchTask(this);
-        rmft.execute(local);
-
-        lv = (ListView) findViewById(R.id.messageListView);
-
-
-        MessageDataSource mds = new MessageDataSource(this);
-        values = new ArrayList<>();
-        try {
-            mds.open();
-            values = mds.getAllMessagesBetweenLocalAndRemote(local, remote);
-            mds.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-            mds.close();
-        }
-
+        //List
+        ListView lv = (ListView) findViewById(R.id.messageListView);
+        values = updateMessages();
         adapter = new MessageAdapter(this, values);
         lv.setAdapter(adapter);
+
+        //timer
+        timerHandler = new Handler();
+        timerRunnable = new Runnable() {
+            @Override
+            public void run() {
+                adapter.clear();
+                adapter.addAll(updateMessages());
+                adapter.notifyDataSetChanged();
+                timerHandler.postDelayed(this, updateInterval);
+            }
+        };
+        timerHandler.postDelayed(timerRunnable, updateInterval);
+
+
     }
 
+
+    private ArrayList<Message> updateMessages(){
+        ArrayList<Message> result = null;
+        RemoteMessageFetchTask rmft = new RemoteMessageFetchTask(this);
+        rmft.execute(local);
+        MessageDataSource mds = new MessageDataSource(this);
+        try {
+            mds.open();
+            result = mds.getAllMessagesBetweenLocalAndRemote(local, remote);
+            mds.close();
+        } catch (SQLException e) {
+            Log.d("Gib", e.getMessage());
+            mds.close();
+        }
+        return result;
+    }
+
+    public void btnSendClicked(View view){
+        EditText etMessage = (EditText)findViewById(R.id.etMessage);
+        String message = etMessage.getText().toString();
+        if(!message.equals("")){
+            etMessage.setText("");
+            Message m = new Message(0, false, local, remote, message, System.currentTimeMillis(),true);
+            MessageDataSource mds = new MessageDataSource(this);
+            RemoteMessagePushTask rmpt = new RemoteMessagePushTask(this);
+            rmpt.execute(m);
+            values.add(0, m);
+            adapter.notifyDataSetChanged();
+        }
+
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        timerHandler.removeCallbacks(timerRunnable);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -85,18 +127,4 @@ public class Messages_Activity extends ActionBarActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    public void btnSendClicked(View view){
-        EditText etMessage = (EditText)findViewById(R.id.etMessage);
-        String message = etMessage.getText().toString();
-        if(!message.equals("")){
-            etMessage.setText("");
-            Message m = new Message(0, false, local, remote, message, System.currentTimeMillis(),true);
-            MessageDataSource mds = new MessageDataSource(this);
-            RemoteMessagePushTask rmpt = new RemoteMessagePushTask(this);
-            rmpt.execute(m);
-            values.add(0, m);
-            adapter.notifyDataSetChanged();
-        }
-
-    }
 }

@@ -56,6 +56,10 @@ public class ConversationAdapter extends ArrayAdapter<Message>{
             else
                 sender = entry.getLocal();
             holder.tvLastMessage.setText(sender + " : " +entry.getMessage());
+            if(entry.isRead())
+                holder.tvRemote.setBackgroundColor(context.getResources().getColor(R.color.blue));
+            else
+                holder.tvRemote.setBackgroundColor(context.getResources().getColor(R.color.red));
         }
         return v;
     }
