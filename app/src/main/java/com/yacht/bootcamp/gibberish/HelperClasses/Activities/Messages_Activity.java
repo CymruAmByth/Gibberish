@@ -58,7 +58,7 @@ public class Messages_Activity extends ActionBarActivity {
             remote = extras.getString("remote");
         }
 
-        this.getSupportActionBar().setTitle("Gibberish to "+remote+" by "+local);
+        this.getSupportActionBar().setTitle("Gibberish with " +remote);
 
 
         //List

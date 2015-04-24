@@ -32,6 +32,10 @@
             android:name=".HelperClasses.Activities.ComposeActivity"
             android:label="@string/title_activity_compose" >
         </activity>
+        <activity
+            android:name=".HelperClasses.Activities.SettingsActivity"
+            android:label="@string/title_activity_settings" >
+        </activity>
     </application>
 
 </manifest>

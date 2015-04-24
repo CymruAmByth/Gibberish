@@ -181,17 +181,20 @@ public class Conversations_Activity extends ActionBarActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
+        Intent intent;
 
         switch(id){
             case R.id.action_settings:
+                intent = new Intent(this, SettingsActivity.class);
+                startActivity(intent);
                 return true;
             case R.id.miLogout:
-                Intent intent = new Intent(this, Login_Activity.class);
+                intent = new Intent(this, Login_Activity.class);
                 startActivity(intent);
                 return true;
             case R.id.miComposeNew:
-                Intent it = new Intent(this, ComposeActivity.class);
-                startActivity(it);
+                intent = new Intent(this, ComposeActivity.class);
+                startActivity(intent);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);

@@ -12,8 +12,11 @@
     <string name="tfLoginName">Login name</string>
     <string name="btnLogin">Login</string>
     <string name="logOut">Log out</string>
-    <string name="title_activity_compose">Compose Gibberish</string>
+    <string name="title_activity_compose">Gibberish Composer</string>
     <string name="recipient">To:</string>
     <string name="msgText">Message text</string>
-    <string name="miComposeMessage">Compose Gibberish</string>
+    <string name="miComposeMessage">Gibberish Composer</string>
+    <string name="title_activity_settings">Gibberish Settings</string>
+    <string name="activeUpdateInteger">Active update interval(s):</string>
+    <string name="updateIntervals">Automatic update intervals</string>
 </resources>
