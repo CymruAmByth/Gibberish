@@ -47,16 +47,17 @@ public class Conversations_Activity extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversations);
-        prefs = this.getSharedPreferences("Settings", MODE_PRIVATE);
-        if(!prefs.contains("userName")){
-            Intent intent = new Intent(this, Login_Activity.class);
-            startActivity(intent);
-        }
     }
 
     @Override
     protected void onStart() {
         super.onStart();
+
+        prefs = this.getSharedPreferences("Settings", MODE_PRIVATE);
+        if(!prefs.contains("userName")){
+            Intent intent = new Intent(this, Login_Activity.class);
+            startActivity(intent);
+        }
 
         //settings
         updateInterval = prefs.getInt("activeUpdateInterval", 5000);
@@ -189,6 +190,8 @@ public class Conversations_Activity extends ActionBarActivity {
                 startActivity(intent);
                 return true;
             case R.id.miLogout:
+                prefs.edit().remove("userName").commit();
+
                 intent = new Intent(this, Login_Activity.class);
                 startActivity(intent);
                 return true;

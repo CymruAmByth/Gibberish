@@ -1,6 +1,8 @@
 package com.yacht.bootcamp.gibberish.HelperClasses.Adapter;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -56,10 +58,18 @@ public class ConversationAdapter extends ArrayAdapter<Message>{
             else
                 sender = entry.getLocal();
             holder.tvLastMessage.setText(sender + " : " +entry.getMessage());
-            if(entry.isRead())
-                holder.tvRemote.setBackgroundColor(context.getResources().getColor(R.color.blue));
-            else
-                holder.tvRemote.setBackgroundColor(context.getResources().getColor(R.color.red));
+            if(entry.isRead()) {
+                //holder.tvRemote.setBackgroundColor(context.getResources().getColor(R.color.blue));
+                GradientDrawable gd = (GradientDrawable)holder.tvRemote.getBackground();
+                gd.setColor(context.getResources().getColor(R.color.blue));
+                holder.tvRemote.setBackground(gd);
+            }
+            else {
+                //holder.tvRemote.setBackgroundColor(context.getResources().getColor(R.color.red));
+                GradientDrawable gd = (GradientDrawable)holder.tvRemote.getBackground();
+                gd.setColor(context.getResources().getColor(R.color.red));
+                holder.tvRemote.setBackground(gd);
+            }
         }
         return v;
     }

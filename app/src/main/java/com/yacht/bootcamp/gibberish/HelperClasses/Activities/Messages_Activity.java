@@ -63,10 +63,11 @@ public class Messages_Activity extends ActionBarActivity {
 
         //List
         ListView lv = (ListView) findViewById(R.id.messageListView);
-        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        lv.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
                 messageClicked(values.get(position));
+                return true;
             }
         });
 

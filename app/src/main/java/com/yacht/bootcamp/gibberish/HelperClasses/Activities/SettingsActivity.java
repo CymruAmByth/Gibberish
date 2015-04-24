@@ -33,12 +33,12 @@ public class SettingsActivity extends ActionBarActivity {
         int activeUpdateInterval = myPrefs.getInt("activeUpdateInterval", 5000);
 
         tvAUI = (TextView)findViewById(R.id.etAutomaticUpdateInterval);
-        tvAUI.setText(String.valueOf(activeUpdateInterval));
+        tvAUI.setText(String.valueOf(activeUpdateInterval/1000));
     }
 
     @Override
     protected void onPause() {
-        int newInterval = Integer.valueOf(tvAUI.getText().toString());
+        int newInterval = Integer.valueOf(tvAUI.getText().toString())*1000;
         if(newInterval<2000)
             newInterval = 2000;
         editor.putInt("activeUpdateInterval", newInterval);
