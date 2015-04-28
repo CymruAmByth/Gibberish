@@ -83,6 +83,9 @@ public class MessageAdapter extends ArrayAdapter<Message>{
             }
             else{
                 holder.tvTileRight.setVisibility(View.VISIBLE);
+                GradientDrawable gd = (GradientDrawable)holder.tvTileLeft.getBackground();
+                gd.setColor(context.getResources().getColor(R.color.blue));
+                holder.tvTileRight.setBackground(gd);
                 holder.tvTileLeft.setVisibility(View.GONE);
                 holder.tvTileRight.setText(entry.getLocal().substring(0, 2).toLowerCase());
                 holder.tvMessage.setGravity(Gravity.RIGHT);

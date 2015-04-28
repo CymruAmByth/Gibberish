@@ -114,7 +114,7 @@ public class Messages_Activity extends ActionBarActivity {
         NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         if(newMessages == 0)
             nm.cancel(0);
-        if(newMessages>unreadMessages){
+        else if(newMessages>unreadMessages){
             unreadMessages = newMessages;
             Intent intent = new Intent(this, Conversations_Activity.class);
             PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, 0);

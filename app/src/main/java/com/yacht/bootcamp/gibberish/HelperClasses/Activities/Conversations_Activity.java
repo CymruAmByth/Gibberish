@@ -1,7 +1,5 @@
 package com.yacht.bootcamp.gibberish.HelperClasses.Activities;
 
-import android.app.ActionBar;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Notification;
 import android.app.NotificationManager;
@@ -18,18 +16,15 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.Switch;
 import android.widget.TextView;
 
 import com.yacht.bootcamp.gibberish.HelperClasses.Adapter.ConversationAdapter;
 import com.yacht.bootcamp.gibberish.HelperClasses.Message;
 import com.yacht.bootcamp.gibberish.HelperClasses.MessageDAO.MessageDataSource;
 import com.yacht.bootcamp.gibberish.HelperClasses.MessageDAO.RemoteMessageFetchTask;
-import com.yacht.bootcamp.gibberish.HelperClasses.MessageDAO.RemoteMessagePushTask;
 import com.yacht.bootcamp.gibberish.R;
 
 import java.sql.SQLException;
@@ -123,14 +118,14 @@ public class Conversations_Activity extends ActionBarActivity {
         NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         if(newMessages == 0)
             nm.cancel(0);
-        if(newMessages>unreadMessages){
+        else if(newMessages>unreadMessages){
             unreadMessages = newMessages;
             Intent intent = new Intent(this, Conversations_Activity.class);
             PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, 0);
             Notification not = new Notification.Builder(this)
                     .setContentTitle("Gibberish")
                     .setContentText("You have " + newMessages + " unread messages")
-                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setSmallIcon(R.mipmap.ic_gibberish_transparant)
                     .setContentIntent(pIntent)
                     .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                     .build();
