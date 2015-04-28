@@ -62,13 +62,11 @@ public class MessageAdapter extends ArrayAdapter<Message>{
                 holder.tvMessage.setGravity(Gravity.LEFT);
                 holder.tvDate.setGravity(Gravity.LEFT);
                 if(entry.isRead()){
-                    //holder.tvTileLeft.setBackgroundColor(context.getResources().getColor(R.color.blue));
                     GradientDrawable gd = (GradientDrawable)holder.tvTileLeft.getBackground();
                     gd.setColor(context.getResources().getColor(R.color.blue));
                     holder.tvTileLeft.setBackground(gd);
                 }
                 else{
-                    //holder.tvTileLeft.setBackgroundColor(context.getResources().getColor(R.color.red));
                     GradientDrawable gd = (GradientDrawable)holder.tvTileLeft.getBackground();
                     gd.setColor(context.getResources().getColor(R.color.red));
                     holder.tvTileLeft.setBackground(gd);

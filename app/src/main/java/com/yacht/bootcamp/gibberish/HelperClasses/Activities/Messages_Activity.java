@@ -1,8 +1,13 @@
 package com.yacht.bootcamp.gibberish.HelperClasses.Activities;
 
 import android.app.AlertDialog;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.RingtoneManager;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -31,7 +36,7 @@ import java.util.List;
 public class Messages_Activity extends ActionBarActivity {
 
     private String local, remote;
-    private int updateInterval;
+    private int updateInterval, unreadMessages;
     private MessageAdapter adapter;
     private ArrayList<Message> values;
     private Handler timerHandler;
@@ -56,6 +61,7 @@ public class Messages_Activity extends ActionBarActivity {
         Bundle extras = this.getIntent().getExtras();
         if(extras!=null){
             remote = extras.getString("remote");
+            unreadMessages = extras.getInt("unreadMessages");
         }
 
         this.getSupportActionBar().setTitle("Gibberish with " +remote);
@@ -95,13 +101,33 @@ public class Messages_Activity extends ActionBarActivity {
         ArrayList<Message> result = null;
         RemoteMessageFetchTask rmft = new RemoteMessageFetchTask(this);
         rmft.execute(local);
+        int newMessages = 0;
         try {
             mds.open();
             result = mds.getAllMessagesBetweenLocalAndRemote(local, remote);
+            newMessages = mds.unreadMessages(local);
             mds.close();
         } catch (SQLException e) {
             mds.close();
             Log.d("Gib", e.getMessage());
+        }
+        NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        if(newMessages == 0)
+            nm.cancel(0);
+        if(newMessages>unreadMessages){
+            unreadMessages = newMessages;
+            Intent intent = new Intent(this, Conversations_Activity.class);
+            PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, 0);
+            Notification not = new Notification.Builder(this)
+                    .setContentTitle("Gibberish")
+                    .setContentText("You have " + newMessages + " unread messages")
+                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setContentIntent(pIntent)
+                    .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+                    .build();
+            nm.notify(0, not);
+        } else {
+            unreadMessages = newMessages;
         }
         return result;
     }

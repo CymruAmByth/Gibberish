@@ -3,9 +3,13 @@ package com.yacht.bootcamp.gibberish.HelperClasses.Activities;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.media.RingtoneManager;
 import android.os.Handler;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -42,11 +46,13 @@ public class Conversations_Activity extends ActionBarActivity {
     private Runnable timerRunnable;
     private SharedPreferences prefs;
     private MessageDataSource mds;
+    private int unreadMessages;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_conversations);
+        unreadMessages = -1;
     }
 
     @Override
@@ -104,13 +110,33 @@ public class Conversations_Activity extends ActionBarActivity {
         RemoteMessageFetchTask rmft = new RemoteMessageFetchTask(this);
         rmft.execute(local);
         mds = new MessageDataSource(this);
+        int newMessages = 0;
         try {
             mds.open();
             result = mds.getAllConversationsForUser(local);
+            newMessages = mds.unreadMessages(local);
             mds.close();
         } catch (SQLException e) {
             Log.d("Gib", e.getMessage());
             mds.close();
+        }
+        NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+        if(newMessages == 0)
+            nm.cancel(0);
+        if(newMessages>unreadMessages){
+            unreadMessages = newMessages;
+            Intent intent = new Intent(this, Conversations_Activity.class);
+            PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, 0);
+            Notification not = new Notification.Builder(this)
+                    .setContentTitle("Gibberish")
+                    .setContentText("You have " + newMessages + " unread messages")
+                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setContentIntent(pIntent)
+                    .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
+                    .build();
+            nm.notify(0, not);
+        } else {
+            unreadMessages = newMessages;
         }
         return result;
     }
@@ -155,9 +181,12 @@ public class Conversations_Activity extends ActionBarActivity {
         timerHandler.removeCallbacks(timerRunnable);
     }
 
+
+
     private void goToMessages(String remote){
         Intent intent = new Intent(this, Messages_Activity.class);
         intent.putExtra("remote", remote);
+        intent.putExtra("unreadMessages", unreadMessages);
         startActivity(intent);
     }
 
@@ -190,7 +219,7 @@ public class Conversations_Activity extends ActionBarActivity {
                 startActivity(intent);
                 return true;
             case R.id.miLogout:
-                prefs.edit().remove("userName").commit();
+                prefs.edit().remove("userName").apply();
 
                 intent = new Intent(this, Login_Activity.class);
                 startActivity(intent);

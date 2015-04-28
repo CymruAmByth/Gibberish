@@ -93,7 +93,7 @@ public class MessageDataSource {
 
     public ArrayList<Message> getAllConversationsForUser(String local){
         ArrayList<Message> messages = new ArrayList<>();
-        String whereClause = "local = ?";
+        String whereClause = MySQLiteHelper.MESSAGES_COLUMN_LOCAL + " = ?";
         Cursor cursor = db.query(MySQLiteHelper.TABLE_MESSAGES,
                 new String[]{
                         MySQLiteHelper.MESSAGES_COLUMN_ID,
@@ -112,6 +112,16 @@ public class MessageDataSource {
         Collections.reverse(messages);
         return messages;
 
+    }
+
+    public int unreadMessages(String local){
+        String whereClause = MySQLiteHelper.MESSAGES_COLUMN_READ + " = ?";
+        Cursor cursor = db.query(MySQLiteHelper.TABLE_MESSAGES,
+                new String[]{"count(*)"},
+                whereClause,
+                new String[]{"0"}, null, null, null);
+        cursor.moveToFirst();
+        return cursor.getInt(0);
     }
 
     private Message cursorToMessage(Cursor cursor){

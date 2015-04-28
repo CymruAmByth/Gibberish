@@ -36,6 +36,7 @@
             android:name=".HelperClasses.Activities.SettingsActivity"
             android:label="@string/title_activity_settings" >
         </activity>
+
     </application>
 
 </manifest>
