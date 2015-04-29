@@ -98,6 +98,8 @@ public class Conversations_Activity extends ActionBarActivity {
             }
         };
         timerHandler.postDelayed(timerRunnable, updateInterval);
+
+
     }
 
     private ArrayList<Message> upDateMessages(){
