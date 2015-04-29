@@ -13,24 +13,20 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.yacht.bootcamp.gibberish.HelperClasses.Adapter.ConversationAdapter;
 import com.yacht.bootcamp.gibberish.HelperClasses.Adapter.MessageAdapter;
-import com.yacht.bootcamp.gibberish.HelperClasses.Message;
+import com.yacht.bootcamp.gibberish.HelperClasses.Model.Message;
 import com.yacht.bootcamp.gibberish.HelperClasses.MessageDAO.MessageDataSource;
 import com.yacht.bootcamp.gibberish.HelperClasses.MessageDAO.RemoteMessageFetchTask;
 import com.yacht.bootcamp.gibberish.HelperClasses.MessageDAO.RemoteMessagePushTask;
 import com.yacht.bootcamp.gibberish.R;
 
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.List;
 
 public class Messages_Activity extends ActionBarActivity {
@@ -38,7 +34,7 @@ public class Messages_Activity extends ActionBarActivity {
     private String local, remote;
     private int updateInterval, unreadMessages;
     private MessageAdapter adapter;
-    private ArrayList<Message> values;
+    private List<Message> messages;
     private Handler timerHandler;
     private Runnable timerRunnable;
     private SharedPreferences prefs;
@@ -68,17 +64,22 @@ public class Messages_Activity extends ActionBarActivity {
 
 
         //List
-        ListView lv = (ListView) findViewById(R.id.messageListView);
+        ListView lv = (ListView) findViewById(R.id.lvMessages);
         lv.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                messageClicked(values.get(position));
+                messageClicked(messages.get(position));
                 return true;
             }
         });
-
-        values = updateMessages();
-        adapter = new MessageAdapter(this, values);
+        try {
+            mds.open();
+            messages = mds.getAllMessagesBetweenLocalAndRemote(local, remote);
+        } catch (SQLException e) {
+            Log.d("Gib", e.getMessage());
+        }
+        mds.close();
+        adapter = new MessageAdapter(this, messages);
         lv.setAdapter(adapter);
 
         //timer
@@ -86,10 +87,7 @@ public class Messages_Activity extends ActionBarActivity {
         timerRunnable = new Runnable() {
             @Override
             public void run() {
-                adapter.clear();
-                values = updateMessages();
-                adapter.addAll(values);
-                adapter.notifyDataSetChanged();
+                adapter.addMessages(updateMessages());
                 timerHandler.postDelayed(this, updateInterval);
             }
         };
@@ -97,14 +95,14 @@ public class Messages_Activity extends ActionBarActivity {
     }
 
 
-    private ArrayList<Message> updateMessages(){
-        ArrayList<Message> result = null;
+    private List<Message> updateMessages(){
+        List<Message> result = null;
         RemoteMessageFetchTask rmft = new RemoteMessageFetchTask(this);
         rmft.execute(local);
         int newMessages = 0;
         try {
             mds.open();
-            result = mds.getAllMessagesBetweenLocalAndRemote(local, remote);
+            result = mds.newMessagesInConversation(local, remote);
             newMessages = mds.unreadMessages(local);
             mds.close();
         } catch (SQLException e) {
@@ -151,13 +149,12 @@ public class Messages_Activity extends ActionBarActivity {
                         try {
                             mds.open();
                             mds.deleteMessage(m);
-                            mds.close();
-                            values.remove(m);
-                            adapter.notifyDataSetChanged();
+                            messages.remove(m);
+                            adapter.deleteMessage(m);
                         } catch (SQLException e) {
-                            mds.close();
                             Log.d("Gib", e.getMessage());
                         }
+                        mds.close();
                         dialog.cancel();
                     }
                 });
@@ -173,8 +170,7 @@ public class Messages_Activity extends ActionBarActivity {
             Message m = new Message(0, false, local, remote, message, System.currentTimeMillis(),true);
             RemoteMessagePushTask rmpt = new RemoteMessagePushTask(this);
             rmpt.execute(m);
-            values.add(0, m);
-            adapter.notifyDataSetChanged();
+            adapter.addMessage(m);
         }
 
     }

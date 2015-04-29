@@ -4,11 +4,8 @@ import android.content.Context;
 import android.os.AsyncTask;
 import android.util.Log;
 
-import com.yacht.bootcamp.gibberish.HelperClasses.Message;
+import com.yacht.bootcamp.gibberish.HelperClasses.Model.Message;
 
-import org.apache.http.client.methods.HttpPost;
-
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;

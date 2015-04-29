@@ -22,7 +22,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import com.yacht.bootcamp.gibberish.HelperClasses.Adapter.ConversationAdapter;
-import com.yacht.bootcamp.gibberish.HelperClasses.Message;
+import com.yacht.bootcamp.gibberish.HelperClasses.Model.Message;
 import com.yacht.bootcamp.gibberish.HelperClasses.MessageDAO.MessageDataSource;
 import com.yacht.bootcamp.gibberish.HelperClasses.MessageDAO.RemoteMessageFetchTask;
 import com.yacht.bootcamp.gibberish.R;

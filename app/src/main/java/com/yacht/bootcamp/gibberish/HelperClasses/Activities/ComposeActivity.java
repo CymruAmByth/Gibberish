@@ -3,18 +3,12 @@ package com.yacht.bootcamp.gibberish.HelperClasses.Activities;
 import android.content.SharedPreferences;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
-import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 
-import com.yacht.bootcamp.gibberish.HelperClasses.Message;
-import com.yacht.bootcamp.gibberish.HelperClasses.MessageDAO.MessageDataSource;
+import com.yacht.bootcamp.gibberish.HelperClasses.Model.Message;
 import com.yacht.bootcamp.gibberish.HelperClasses.MessageDAO.RemoteMessagePushTask;
 import com.yacht.bootcamp.gibberish.R;
-
-import java.sql.SQLException;
 
 public class ComposeActivity extends ActionBarActivity {
 

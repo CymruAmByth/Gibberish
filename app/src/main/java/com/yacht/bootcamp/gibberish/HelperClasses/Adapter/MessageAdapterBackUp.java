@@ -7,7 +7,7 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
+import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.yacht.bootcamp.gibberish.HelperClasses.Model.Message;
@@ -20,10 +20,10 @@ import java.util.List;
 /**
  * Created by gebruiker on 22/04/15.
  */
-public class MessageAdapter extends BaseAdapter{
+public class MessageAdapterBackUp extends ArrayAdapter<Message>{
 
     private final Context context;
-    private final List<Message> messages;
+    private final List<Message> values;
 
     private class ViewHolder {
         public TextView tvTileLeft;
@@ -32,42 +32,11 @@ public class MessageAdapter extends BaseAdapter{
         public TextView tvMessage;
     }
 
-    public MessageAdapter(Context context, List<Message> messages) {
-        super();
+
+    public MessageAdapterBackUp(Context context, List<Message> objects) {
+        super(context, R.layout.conversation_list_item, objects);
         this.context = context;
-        this.messages = messages;
-    }
-
-    public void addMessage(Message msg){
-        messages.add(0, msg);
-        this.notifyDataSetChanged();
-    }
-
-    public void addMessages(List<Message> msgs){
-        for(Message m :msgs){
-            messages.add(0, m);
-        }
-        this.notifyDataSetChanged();
-    }
-
-    public  void deleteMessage(Message m){
-        messages.remove(m);
-        this.notifyDataSetChanged();
-    }
-
-    @Override
-    public int getCount() {
-        return messages.size();
-    }
-
-    @Override
-    public Object getItem(int position) {
-        return messages.get(position);
-    }
-
-    @Override
-    public long getItemId(int position) {
-        return messages.get(position).getId();
+        this.values = objects;
     }
 
     @Override
@@ -83,7 +52,7 @@ public class MessageAdapter extends BaseAdapter{
             holder.tvMessage = (TextView)v.findViewById(R.id.tvMessage);
             v.setTag(holder);
         }
-        Message entry = messages.get(position);
+        Message entry = values.get(position);
         if(entry != null){
             ViewHolder holder = (ViewHolder)v.getTag();
             if(entry.isIncoming()) {

@@ -1,4 +1,4 @@
-package com.yacht.bootcamp.gibberish.HelperClasses;
+package com.yacht.bootcamp.gibberish.HelperClasses.Model;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;

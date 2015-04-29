@@ -1,7 +1,6 @@
 package com.yacht.bootcamp.gibberish.HelperClasses.Adapter;
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -9,7 +8,7 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
-import com.yacht.bootcamp.gibberish.HelperClasses.Message;
+import com.yacht.bootcamp.gibberish.HelperClasses.Model.Message;
 import com.yacht.bootcamp.gibberish.R;
 
 import java.util.List;

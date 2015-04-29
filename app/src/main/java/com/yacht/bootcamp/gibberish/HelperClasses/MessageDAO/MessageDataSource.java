@@ -5,12 +5,12 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import com.yacht.bootcamp.gibberish.HelperClasses.Message;
+import com.yacht.bootcamp.gibberish.HelperClasses.Model.Message;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
+import java.util.List;
 
 /**
  * Created by Joey on 4/10/2015.
@@ -115,13 +115,29 @@ public class MessageDataSource {
     }
 
     public int unreadMessages(String local){
-        String whereClause = MySQLiteHelper.MESSAGES_COLUMN_READ + " = ?";
+        String whereClause = MySQLiteHelper.MESSAGES_COLUMN_LOCAL + " = ? and "
+                            +MySQLiteHelper.MESSAGES_COLUMN_READ + " = ?";
         Cursor cursor = db.query(MySQLiteHelper.TABLE_MESSAGES,
                 new String[]{"count(*)"},
                 whereClause,
-                new String[]{"0"}, null, null, null);
+                new String[]{local, "0"}, null, null, null);
         cursor.moveToFirst();
         return cursor.getInt(0);
+    }
+
+    public List<Message> newMessagesInConversation(String local, String remote){
+        ArrayList<Message> messages = new ArrayList<>();
+        String whereClause = MySQLiteHelper.MESSAGES_COLUMN_LOCAL + " = ? and "
+                            + MySQLiteHelper.MESSAGES_COLUMN_REMOTE + " = ? and "
+                            + MySQLiteHelper.MESSAGES_COLUMN_READ + " = ?";
+        Cursor cursor = db.query(MySQLiteHelper.TABLE_MESSAGES,
+                allColumns, whereClause, new String[] {local, remote, "0"}, null, null, MySQLiteHelper.MESSAGES_COLUMN_TIMESTAMP);
+        cursor.moveToFirst();
+        while(!cursor.isAfterLast()){
+            messages.add(cursorToMessage(cursor));
+            cursor.moveToNext();
+        }
+        return messages;
     }
 
     private Message cursorToMessage(Cursor cursor){
