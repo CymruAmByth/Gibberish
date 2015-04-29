@@ -21,7 +21,7 @@ public class Login_Activity extends ActionBarActivity {
 
 
     public void loginButtonClicked(View view){
-        String name = ((EditText)findViewById(R.id.etLogin)).getText().toString();
+        String name = ((EditText)findViewById(R.id.etLogin)).getText().toString().trim();
         if(name.length()>0){
             SharedPreferences prefs = getSharedPreferences("Settings", MODE_PRIVATE);
             SharedPreferences.Editor editor = prefs.edit();

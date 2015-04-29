@@ -23,11 +23,13 @@ public class ComposeActivity extends ActionBarActivity {
     }
 
     public void sendButtonClicked(View view){
-        String contact = ((EditText)findViewById(R.id.etComposeContact)).getText().toString();
-        String message = ((EditText)findViewById(R.id.etComposeMessage)).getText().toString();
-        Message m = new Message(0, false, local, contact, message, System.currentTimeMillis(), true);
-        RemoteMessagePushTask rmpt = new RemoteMessagePushTask(this);
-        rmpt.execute(m);
-        finish();
+        String contact = ((EditText)findViewById(R.id.etComposeContact)).getText().toString().trim();
+        String message = ((EditText)findViewById(R.id.etComposeMessage)).getText().toString().trim();
+        if(contact.length()>0 && message.length()>0) {
+            Message m = new Message(0, false, local, contact, message, System.currentTimeMillis(), true);
+            RemoteMessagePushTask rmpt = new RemoteMessagePushTask(this);
+            rmpt.execute(m);
+            finish();
+        }
     }
 }

@@ -188,8 +188,11 @@ public class Conversations_Activity extends ActionBarActivity {
     public void btnContactClicked(View view){
         EditText etContact = (EditText)findViewById(R.id.etContact);
         String remote = etContact.getText().toString();
-        etContact.setText("");
-        goToMessages(remote);
+        remote = remote.trim();
+        if(remote.length()>0) {
+            etContact.setText("");
+            goToMessages(remote);
+        }
     }
 
 

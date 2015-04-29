@@ -164,8 +164,8 @@ public class Messages_Activity extends ActionBarActivity {
 
     public void btnSendClicked(View view){
         EditText etMessage = (EditText)findViewById(R.id.etMessage);
-        String message = etMessage.getText().toString();
-        if(!message.equals("")){
+        String message = etMessage.getText().toString().trim();
+        if(message.length()>0){
             etMessage.setText("");
             Message m = new Message(0, false, local, remote, message, System.currentTimeMillis(),true);
             RemoteMessagePushTask rmpt = new RemoteMessagePushTask(this);
