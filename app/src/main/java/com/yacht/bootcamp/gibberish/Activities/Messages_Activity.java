@@ -26,6 +26,8 @@ import com.yacht.bootcamp.gibberish.HelperClasses.MessageDAO.RemoteMessageFetchT
 import com.yacht.bootcamp.gibberish.HelperClasses.MessageDAO.RemoteMessagePushTask;
 import com.yacht.bootcamp.gibberish.R;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -119,7 +121,7 @@ public class Messages_Activity extends ActionBarActivity {
             Notification not = new Notification.Builder(this)
                     .setContentTitle("Gibberish")
                     .setContentText("You have " + newMessages + " unread messages")
-                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setSmallIcon(R.mipmap.ic_gibberish_transparant)
                     .setContentIntent(pIntent)
                     .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                     .build();

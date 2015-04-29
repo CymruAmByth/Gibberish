@@ -118,8 +118,10 @@ public class Conversations_Activity extends ActionBarActivity {
             mds.close();
         }
         NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-        if(newMessages == 0)
+        if(newMessages == 0) {
             nm.cancel(0);
+            unreadMessages = 0;
+        }
         else if(newMessages>unreadMessages){
             unreadMessages = newMessages;
             Intent intent = new Intent(this, Conversations_Activity.class);
