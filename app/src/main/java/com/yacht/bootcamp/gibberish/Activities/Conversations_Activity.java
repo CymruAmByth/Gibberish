@@ -1,4 +1,4 @@
-package com.yacht.bootcamp.gibberish.HelperClasses.Activities;
+package com.yacht.bootcamp.gibberish.Activities;
 
 import android.app.AlertDialog;
 import android.app.Notification;
@@ -13,73 +13,76 @@ import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
-import com.yacht.bootcamp.gibberish.HelperClasses.Adapter.MessageAdapter;
+import com.yacht.bootcamp.gibberish.HelperClasses.Adapter.ConversationAdapter;
 import com.yacht.bootcamp.gibberish.HelperClasses.Model.Message;
 import com.yacht.bootcamp.gibberish.HelperClasses.MessageDAO.MessageDataSource;
 import com.yacht.bootcamp.gibberish.HelperClasses.MessageDAO.RemoteMessageFetchTask;
-import com.yacht.bootcamp.gibberish.HelperClasses.MessageDAO.RemoteMessagePushTask;
 import com.yacht.bootcamp.gibberish.R;
 
 import java.sql.SQLException;
-import java.util.List;
+import java.util.ArrayList;
 
-public class Messages_Activity extends ActionBarActivity {
 
-    private String local, remote;
-    private int updateInterval, unreadMessages;
-    private MessageAdapter adapter;
-    private List<Message> messages;
+public class Conversations_Activity extends ActionBarActivity {
+
+    private ArrayList<Message> values;
+    private ConversationAdapter adapter;
+    private String local;
+    private int updateInterval;
     private Handler timerHandler;
     private Runnable timerRunnable;
     private SharedPreferences prefs;
     private MessageDataSource mds;
+    private int unreadMessages;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_messages);
+        setContentView(R.layout.activity_conversations);
+        unreadMessages = -1;
     }
 
     @Override
-    protected void onStart(){
+    protected void onStart() {
         super.onStart();
-        mds = new MessageDataSource(this);
-        prefs = getSharedPreferences("Settings", MODE_PRIVATE);
-        updateInterval = prefs.getInt("activeUpdateInterval", 5000);
-        local = prefs.getString("userName", "Cymru");
 
-        Bundle extras = this.getIntent().getExtras();
-        if(extras!=null){
-            remote = extras.getString("remote");
-            unreadMessages = extras.getInt("unreadMessages");
+        prefs = this.getSharedPreferences("Settings", MODE_PRIVATE);
+        if(!prefs.contains("userName")){
+            Intent intent = new Intent(this, Login_Activity.class);
+            startActivity(intent);
         }
 
-        this.getSupportActionBar().setTitle("Gibberish with " +remote);
+        //settings
+        updateInterval = prefs.getInt("activeUpdateInterval", 5000);
+        local = prefs.getString("userName", "Cymru");
+        this.getSupportActionBar().setTitle("Gibberish by "+local);
 
-
-        //List
-        ListView lv = (ListView) findViewById(R.id.lvMessages);
+        //list
+        values = new ArrayList<>();
+        ListView lv = (ListView) findViewById(R.id.conversationListView);
+        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                goToMessages(values.get(position).getRemote());
+            }
+        });
         lv.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
             @Override
             public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-                messageClicked(messages.get(position));
+                conversationLongClicked(values.get(position));
                 return true;
             }
         });
-        try {
-            mds.open();
-            messages = mds.getAllMessagesBetweenLocalAndRemote(local, remote);
-        } catch (SQLException e) {
-            Log.d("Gib", e.getMessage());
-        }
-        mds.close();
-        adapter = new MessageAdapter(this, messages);
+        values = upDateMessages();
+        adapter = new ConversationAdapter(this, values);
         lv.setAdapter(adapter);
 
         //timer
@@ -87,27 +90,30 @@ public class Messages_Activity extends ActionBarActivity {
         timerRunnable = new Runnable() {
             @Override
             public void run() {
-                adapter.addMessages(updateMessages());
+                adapter.clear();
+                values = upDateMessages();
+                adapter.addAll(values);
+                adapter.notifyDataSetChanged();
                 timerHandler.postDelayed(this, updateInterval);
             }
         };
         timerHandler.postDelayed(timerRunnable, updateInterval);
     }
 
-
-    private List<Message> updateMessages(){
-        List<Message> result = null;
+    private ArrayList<Message> upDateMessages(){
+        ArrayList<Message> result = null;
         RemoteMessageFetchTask rmft = new RemoteMessageFetchTask(this);
         rmft.execute(local);
+        mds = new MessageDataSource(this);
         int newMessages = 0;
         try {
             mds.open();
-            result = mds.newMessagesInConversation(local, remote);
+            result = mds.getAllConversationsForUser(local);
             newMessages = mds.unreadMessages(local);
             mds.close();
         } catch (SQLException e) {
-            mds.close();
             Log.d("Gib", e.getMessage());
+            mds.close();
         }
         NotificationManager nm = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
         if(newMessages == 0)
@@ -119,7 +125,7 @@ public class Messages_Activity extends ActionBarActivity {
             Notification not = new Notification.Builder(this)
                     .setContentTitle("Gibberish")
                     .setContentText("You have " + newMessages + " unread messages")
-                    .setSmallIcon(R.mipmap.ic_launcher)
+                    .setSmallIcon(R.mipmap.ic_gibberish_transparant)
                     .setContentIntent(pIntent)
                     .setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION))
                     .build();
@@ -130,11 +136,11 @@ public class Messages_Activity extends ActionBarActivity {
         return result;
     }
 
-    private void messageClicked(final Message m){
+    private void conversationLongClicked(final Message m){
         TextView tvAlert = new TextView(this);
         tvAlert.setMovementMethod(LinkMovementMethod.getInstance());
         tvAlert.setPadding(10,10,10,10);
-        tvAlert.setText("Are you sure you want to delete this message?");
+        tvAlert.setText("Are you sure you want to delete this conversation?");
         AlertDialog.Builder  builder = new AlertDialog.Builder(this);
         builder.setView(tvAlert)
                 .setNegativeButton("No", new DialogInterface.OnClickListener() {
@@ -148,30 +154,19 @@ public class Messages_Activity extends ActionBarActivity {
                     public void onClick(DialogInterface dialog, int which) {
                         try {
                             mds.open();
-                            mds.deleteMessage(m);
-                            messages.remove(m);
-                            adapter.deleteMessage(m);
+                            mds.deleteMessagesForUser(local, m.getRemote());
+                            mds.close();
+                            values.remove(m);
+                            adapter.notifyDataSetChanged();
                         } catch (SQLException e) {
+                            mds.close();
                             Log.d("Gib", e.getMessage());
                         }
-                        mds.close();
                         dialog.cancel();
                     }
                 });
         AlertDialog dialog = builder.create();
         dialog.show();
-    }
-
-    public void btnSendClicked(View view){
-        EditText etMessage = (EditText)findViewById(R.id.etMessage);
-        String message = etMessage.getText().toString();
-        if(!message.equals("")){
-            etMessage.setText("");
-            Message m = new Message(0, false, local, remote, message, System.currentTimeMillis(),true);
-            RemoteMessagePushTask rmpt = new RemoteMessagePushTask(this);
-            rmpt.execute(m);
-            adapter.addMessage(m);
-        }
 
     }
 
@@ -179,6 +174,58 @@ public class Messages_Activity extends ActionBarActivity {
     protected void onPause() {
         super.onPause();
         timerHandler.removeCallbacks(timerRunnable);
+    }
+
+
+
+    private void goToMessages(String remote){
+        Intent intent = new Intent(this, Messages_Activity.class);
+        intent.putExtra("remote", remote);
+        intent.putExtra("unreadMessages", unreadMessages);
+        startActivity(intent);
+    }
+
+    public void btnContactClicked(View view){
+        EditText etContact = (EditText)findViewById(R.id.etContact);
+        String remote = etContact.getText().toString();
+        etContact.setText("");
+        goToMessages(remote);
+    }
+
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_conversations, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+        Intent intent;
+
+        switch(id){
+            case R.id.action_settings:
+                intent = new Intent(this, SettingsActivity.class);
+                startActivity(intent);
+                return true;
+            case R.id.miLogout:
+                prefs.edit().remove("userName").apply();
+
+                intent = new Intent(this, Login_Activity.class);
+                startActivity(intent);
+                return true;
+            case R.id.miComposeNew:
+                intent = new Intent(this, ComposeActivity.class);
+                startActivity(intent);
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
 }

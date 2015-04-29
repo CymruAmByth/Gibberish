@@ -10,7 +10,7 @@
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
         <activity
-            android:name=".HelperClasses.Activities.Conversations_Activity"
+            android:name=".Activities.Conversations_Activity"
             android:label="@string/app_name"
             android:windowSoftInputMode="stateHidden" >
             <intent-filter>
@@ -20,20 +20,20 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".HelperClasses.Activities.Messages_Activity"
+            android:name=".Activities.Messages_Activity"
             android:label="@string/title_activity_messages"
             android:windowSoftInputMode="stateHidden" >
         </activity>
         <activity
-            android:name=".HelperClasses.Activities.Login_Activity"
+            android:name=".Activities.Login_Activity"
             android:label="@string/title_activity_login_" >
         </activity>
         <activity
-            android:name=".HelperClasses.Activities.ComposeActivity"
+            android:name=".Activities.ComposeActivity"
             android:label="@string/title_activity_compose" >
         </activity>
         <activity
-            android:name=".HelperClasses.Activities.SettingsActivity"
+            android:name=".Activities.SettingsActivity"
             android:label="@string/title_activity_settings" >
         </activity>
 

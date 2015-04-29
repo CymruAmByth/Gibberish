@@ -1,4 +1,4 @@
-package com.yacht.bootcamp.gibberish.HelperClasses.Activities;
+package com.yacht.bootcamp.gibberish.Activities;
 
 import android.content.SharedPreferences;
 import android.support.v7.app.ActionBarActivity;
